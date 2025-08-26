@@ -8,8 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Search, FileText, BarChart3, Database, Send, RefreshCw } from 'lucide-react';
+import { Search, FileText, BarChart3, Database, Send, RefreshCw, Upload } from 'lucide-react';
 import { trpc } from '@/utils/trpc';
+import { FileUploadDialog } from '@/components/FileUploadDialog';
 import type { Asset, Connection, CreateMigrationJobInput } from '../../../server/src/schema';
 
 export function AssetsExplorer() {
@@ -21,6 +22,7 @@ export function AssetsExplorer() {
   const [filterConnection, setFilterConnection] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
   const [isMigrationDialogOpen, setIsMigrationDialogOpen] = useState(false);
+  const [isFileUploadDialogOpen, setIsFileUploadDialogOpen] = useState(false);
 
   const [migrationForm, setMigrationForm] = useState<CreateMigrationJobInput>({
     name: '',
@@ -311,7 +313,16 @@ export function AssetsExplorer() {
           <h2 className="text-2xl font-semibold text-gray-900">Assets Explorer</h2>
           <p className="text-gray-600">Browse and select assets for migration to Databricks</p>
         </div>
-        <Dialog open={isMigrationDialogOpen} onOpenChange={setIsMigrationDialogOpen}>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setIsFileUploadDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            Upload File
+          </Button>
+          <Dialog open={isMigrationDialogOpen} onOpenChange={setIsMigrationDialogOpen}>
           <DialogTrigger asChild>
             <Button
               disabled={selectedAssets.length === 0}
@@ -406,7 +417,18 @@ export function AssetsExplorer() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
+
+      {/* File Upload Dialog */}
+      <FileUploadDialog
+        isOpen={isFileUploadDialogOpen}
+        onOpenChange={setIsFileUploadDialogOpen}
+        onMigrationCreated={() => {
+          // Refresh assets list if needed
+          loadAssets();
+        }}
+      />
 
       {/* Search and Filters */}
       <Card>
